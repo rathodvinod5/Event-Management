@@ -10,14 +10,20 @@ describe("EventManagement contract", function () {
   let addr1;
   let addr2;
   let addrs;
+  let address;
 
   beforeEach(async function () {
-    [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
-    EventManagement = await ethers.getContractFactory("EventManagement");
-    eventManagement = await EventManagement.deploy();
-    // await eventManagement.deployed();
+    try {
+      address = await ethers.getSigners();
+      [owner, addr1, addr2, ...addrs] = address;
+      EventManagement = await ethers.getContractFactory("EventManagement");
+      eventManagement = await EventManagement.deploy();
+    } catch(error) {
+      console.log('error in establishing connection: ', error)
+    }
   });
 
+  // #region The first test case
   it("should create an event", async function () {
     try {
         const eventName = "Test Event";
@@ -29,15 +35,16 @@ describe("EventManagement contract", function () {
         await eventManagement.createEvent(eventName, eventOrganiser,eventDate, price, totalTickets);
 
         const event = await eventManagement.events(1);
-        // assert.strictEqual(event.eventName, eventName);
-        // assert.strictEqual(event.eventOrganiser, eventOrganiser);
-        // assert.strictEqual(event.eventDate.toNumber(), eventDate);
-        // assert.strictEqual(event.price.toString(), price.toString());
-        // assert.strictEqual(event.totalTickets.toNumber(), totalTickets);
+        assert.strictEqual(event.eventName, eventName);
+        assert.strictEqual(event.eventOrganiser, eventOrganiser);
+        assert.strictEqual(event.eventDate.toNumber(), eventDate);
+        assert.strictEqual(event.price.toString(), price.toString());
+        assert.strictEqual(event.totalTickets.toNumber(), totalTickets);
     } catch(error) {
         console.log('ERROR: ', error)
     }
   });
+  // #endregion
 
   it.skip("should buy tickets", async function () {
     const eventName = "Test Event";
@@ -126,6 +133,7 @@ describe("EventManagement contract", function () {
     }
   });
 
+  // #region The last test
   it.skip("should not allow transferring more tickets than owned", async function () {
     const eventName = "Test Event";
     const eventOrganiser = owner.address;
