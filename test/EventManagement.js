@@ -24,143 +24,103 @@ describe("EventManagement contract", function () {
   });
 
   // #region The first test case
-  it("should create an event", async function () {
-    try {
-        const eventName = "Test Event";
-        const eventOrganiser = owner.address;
-        const eventDate = Math.floor(Date.now() / 1000) + 86400; // 1 day in the future
-        const price = ethers.parseUnits("1", "ether");
-        const totalTickets = 100;
+  it("should create an event", async () => { 
+    const eventName = "The first event";
+    const eventOraganizer = owner.address;
+    const eventDate = Math.floor(Date.now() / 1000) + 86400;
+    const eventPrice = ethers.parseUnits("1", "ether");
+    const totalTickets = 100;
 
-        await eventManagement.createEvent(eventName, eventOrganiser,eventDate, price, totalTickets);
+    await eventManagement.createEvent(eventName, eventOraganizer, eventDate, eventPrice, totalTickets);
 
-        const event = await eventManagement.events(1);
-        assert.strictEqual(event.eventName, eventName);
-        assert.strictEqual(event.eventOrganiser, eventOrganiser);
-        assert.strictEqual(event.eventDate.toNumber(), eventDate);
-        assert.strictEqual(event.price.toString(), price.toString());
-        assert.strictEqual(event.totalTickets.toNumber(), totalTickets);
-    } catch(error) {
-        console.log('ERROR: ', error)
-    }
+    const event = await eventManagement.events(1);
+    assert.equal(event.eventName, eventName);
+    assert.equal(event.eventOrganiser, eventOraganizer);
+    assert.equal(event.eventDate.toString(), eventDate.toString());
+    assert.equal(event.price.toString(), eventPrice.toString());
+    assert.equal(event.totalTickets, totalTickets);
+    assert.equal(event.remaininTickets, totalTickets);
   });
   // #endregion
 
-  it.skip("should buy tickets", async function () {
-    const eventName = "Test Event";
-    const eventOrganiser = owner.address;
+  it("should buy tickets", async () => {
+    const eventName = "The first event";
+    const eventOraganizer = owner.address;
     const eventDate = Math.floor(Date.now() / 1000) + 86400;
-    const price = ethers.utils.parseEther("1");
+    const eventPrice = ethers.parseUnits("1", "ether");
     const totalTickets = 100;
 
-    await eventManagement.createEvent(
-      eventName,
-      eventOrganiser,
-      eventDate,
-      price,
-      totalTickets
-    );
+    await eventManagement.createEvent(eventName, eventOraganizer, eventDate, eventPrice, totalTickets);
 
-    const eventId = 1;
     const quantity = 2;
-    const value = ethers.utils.parseEther("2");
+    const value = ethers.parseUnits("2","ether");
+    const eventId = 1;
 
     await eventManagement.connect(addr1).buyTickets(eventId, quantity, { value });
+    const event = await eventManagement.events(1);
+    const ticketsPurchased = await eventManagement.tickets(addr1.address, eventId);
 
-    const remainingTickets = await eventManagement.events(eventId);
-    const ticketsBought = await eventManagement.tickets(addr1.address, eventId);
-
-    assert.strictEqual(remainingTickets.remaininTickets.toNumber(), totalTickets - quantity);
-    assert.strictEqual(ticketsBought.toNumber(), quantity);
+    assert.strictEqual(event.remaininTickets.toString(), (totalTickets - quantity).toString());
+    assert.strictEqual(ticketsPurchased.toString(), quantity.toString());
   });
 
-  it.skip("should transfer tickets", async function () {
-    const eventName = "Test Event";
-    const eventOrganiser = owner.address;
+  it("should transfer tickets", async () => {
+    const eventName = "The first event";
+    const eventOraganizer = owner.address;
     const eventDate = Math.floor(Date.now() / 1000) + 86400;
-    const price = ethers.utils.parseEther("1");
+    const eventPrice = ethers.parseUnits("1", "ether");
     const totalTickets = 100;
 
-    await eventManagement.createEvent(
-      eventName,
-      eventOrganiser,
-      eventDate,
-      price,
-      totalTickets
-    );
+    await eventManagement.createEvent(eventName, eventOraganizer, eventDate, eventPrice, totalTickets);
 
+    const quantity = 4;
+    const value = ethers.parseUnits("4","ether");
     const eventId = 1;
-    const quantity = 2;
-    const value = ethers.utils.parseEther("2");
 
     await eventManagement.connect(addr1).buyTickets(eventId, quantity, { value });
+    await eventManagement.connect(addr1).transferTicket(eventId, quantity / 2, addr2.address);
+    const remainingTicketsForAddr1 = await eventManagement.tickets(addr1.address, eventId);
+    const remainingTicketsForAddr2 = await eventManagement.tickets(addr2.address, eventId);
 
-    const transferQuantity = 1;
-
-    await eventManagement.connect(addr1).transferTicket(eventId, transferQuantity, addr2.address);
-
-    const ticketsAddr1 = await eventManagement.tickets(addr1.address, eventId);
-    const ticketsAddr2 = await eventManagement.tickets(addr2.address, eventId);
-
-    assert.strictEqual(ticketsAddr1.toNumber(), quantity - transferQuantity);
-    assert.strictEqual(ticketsAddr2.toNumber(), transferQuantity);
+    assert.strictEqual(parseInt(remainingTicketsForAddr1), 2);
+    assert.strictEqual(parseInt(remainingTicketsForAddr2), 2);
   });
 
-  it.skip("should not allow buying tickets after the event date", async function () {
+  it("should not allow buying tickets after the event date", async function () {
     const eventName = "Test Event";
     const eventOrganiser = owner.address;
     const eventDate = Math.floor(Date.now() / 1000) - 86400; // 1 day in the past
-    const price = ethers.utils.parseEther("1");
+    const price = ethers.parseUnits("1", "ether");
     const totalTickets = 100;
 
-    await eventManagement.createEvent(
-      eventName,
-      eventOrganiser,
-      eventDate,
-      price,
-      totalTickets
-    );
-
-    const eventId = 1;
-    const quantity = 2;
-    const value = ethers.utils.parseEther("2");
-
     try {
-      await eventManagement.connect(addr1).buyTickets(eventId, quantity, { value });
+      // await eventManagement.connect(addr1).buyTickets(eventId, quantity, { value });
+      await eventManagement.createEvent(eventName, eventOrganiser, eventDate, price, totalTickets);
       assert.fail("Expected an error but did not get one");
     } catch (error) {
-      assert(error.message.includes("This event has ended!"), "Expected 'This event has ended!' but got another error");
+      assert(error.message.includes("Event date should be of future date."), `Unexpected error message: ${error.message}`);
     }
   });
 
   // #region The last test
-  it.skip("should not allow transferring more tickets than owned", async function () {
-    const eventName = "Test Event";
-    const eventOrganiser = owner.address;
+  it("should not allow transferring more tickets than owned", async () => {
+    const eventName = "The first event";
+    const eventOraganizer = owner.address;
     const eventDate = Math.floor(Date.now() / 1000) + 86400;
-    const price = ethers.utils.parseEther("1");
+    const eventPrice = ethers.parseUnits("1", "ether");
     const totalTickets = 100;
 
-    await eventManagement.createEvent(
-      eventName,
-      eventOrganiser,
-      eventDate,
-      price,
-      totalTickets
-    );
+    await eventManagement.createEvent(eventName, eventOraganizer, eventDate, eventPrice, totalTickets);
 
-    const eventId = 1;
     const quantity = 2;
-    const value = ethers.utils.parseEther("2");
+    const value = ethers.parseUnits("2","ether");
+    const eventId = 1;
 
     await eventManagement.connect(addr1).buyTickets(eventId, quantity, { value });
-
-    const transferQuantity = 3; // More than owned
-
     try {
-      await eventManagement.connect(addr1).transferTicket(eventId, transferQuantity, addr2.address);
-      assert.fail("Expected an error but did not get one");
-    } catch (error) {
+      await eventManagement.connect(addr1).transferTicket(eventId, quantity + 2, addr2.address);
+      assert.fail("Expected an error but did not get one")
+    }catch(error) {
       assert(error.message.includes("You don't have sufficient quantity!"), "Expected 'You don't have sufficient quantity!' but got another error");
     }
   });

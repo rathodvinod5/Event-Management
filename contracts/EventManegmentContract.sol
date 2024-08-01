@@ -11,7 +11,7 @@ contract EventManagement {
         uint remaininTickets;
     }
     uint eventNumber;
-    mapping(address => mapping(uint => uint)) tickets;
+    mapping(address => mapping(uint => uint)) public tickets;
     mapping(uint => Event) public events; // update smart contract(i.e, recompile once again)
     address owner;
 
