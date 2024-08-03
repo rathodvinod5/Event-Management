@@ -31,3 +31,11 @@ body {
     text-wrap: balance;
   }
 }
+
+.form-label {
+  margin-top: 20px;
+}
+
+.primary-text {
+  color: #2185d0; /* Adjust this color to match your primary color */
+}

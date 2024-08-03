@@ -10,9 +10,13 @@
     "test": "mocha"
   },
   "dependencies": {
+    "dotenv": "^16.4.5",
+    "ethers": "^5.7.2",
     "next": "14.2.5",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "semantic-ui-css": "^2.5.0",
+    "semantic-ui-react": "^2.1.5"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.7",
@@ -30,8 +34,8 @@
     "@types/chai": "^4.3.16",
     "@types/mocha": "^10.0.7",
     "chai": "^4.5.0",
-    "ethers": "^6.13.2",
     "hardhat": "^2.22.7",
+    "hardhat-deploy": "^0.12.4",
     "hardhat-gas-reporter": "^1.0.10",
     "mocha": "^10.7.0",
     "postcss": "^8",

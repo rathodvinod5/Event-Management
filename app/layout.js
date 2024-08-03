@@ -1,4 +1,7 @@
+import 'semantic-ui-css/semantic.min.css';
 import { Inter } from "next/font/google";
+import { Container } from 'semantic-ui-react';
+import EventManagementContextProvider from "./context/EventContractContext";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -11,7 +14,16 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <EventManagementContextProvider>
+          {/* <Container>
+            <Header />
+          </Container> */}
+          <Container>
+            {children}
+          </Container>
+        </EventManagementContextProvider>
+      </body>
     </html>
   );
 }
