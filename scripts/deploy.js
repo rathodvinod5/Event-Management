@@ -6,7 +6,7 @@ async function main() {
   // await eventManagement.deployed();
 
   console.log("EventManagement deployed to:", eventManagement, eventManagement.target);
-  // address: 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
+  // deployed address(sepolia): 0x94d92F12598165389047320086B9640Eb2681fFf
 }
 
 main()
