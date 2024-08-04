@@ -1,17 +1,17 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Header as PageHeader, Loader } from "semantic-ui-react";
+import { Header as PageHeader, Loader, Grid, Container } from "semantic-ui-react";
 import { useEventManagementContext } from "../../context/EventContractContext";
 import { RenderEventDetails } from "./EventDetails";
+import PurchaseTickets from "./PurchaseTicket";
+import TabsContainer from "./TabsContainer";
 
 const EventDetails = ({ params }) => {
   const [loading, setLoading] = useState(false);
   const [eventDetails, setEventDetails] = useState(null);
   const { eventManagementContract } = useEventManagementContext();
   const { eventId } = params;
-
-  console.log('eventId: ', eventId);
 
   useEffect(() => {
     if(!eventDetails) {
@@ -42,13 +42,23 @@ const EventDetails = ({ params }) => {
 
       <div class="ui divider"></div>
       <PageHeader as="h3">Event Details</PageHeader>
-      {!eventDetails && loading ? <Loader /> 
-        : eventDetails && !loading 
-          ? (
-            <RenderEventDetails eventDetails={eventDetails} />
-          ) : (
-            <p>No Data Found</p>
-          )}
+      {eventDetails && !loading 
+        ? (
+          <div>
+            <Grid>
+              <Grid.Column width={10}>
+                <RenderEventDetails eventDetails={eventDetails} />
+              </Grid.Column>
+              <Grid.Column width={6}>
+                <Container>
+                  {/* <PurchaseTickets eventId={eventId} /> */}
+                  <TabsContainer eventId={eventId} />
+                </Container>
+              </Grid.Column>
+            </Grid>
+          </div>
+        ) : !eventDetails && loading ? <Loader /> : <p>No Data Found</p>
+      }
     </div>
   );
 }
