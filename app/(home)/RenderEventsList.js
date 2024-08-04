@@ -1,19 +1,19 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Card } from "semantic-ui-react";
+import { Card, Loader } from "semantic-ui-react";
 
 export const RenderCampaignList = ({ eventManagementContract }) => {
+    const [isLoading, setLoading] = useState(false);
     const [eventList, setEventList] = useState([]);
 
     useEffect(() => {
-      console.log('in useEffect of RenderList');
       if(!eventList.length) {
+        setLoading(true);
         getEventsList();
       }
     }, []);
 
     const getEventsList = async () => {
-        console.log('in getEventsList')
         try {
             let totalEvents = await eventManagementContract.eventNumber();
             totalEvents = totalEvents.toString();
@@ -22,10 +22,11 @@ export const RenderCampaignList = ({ eventManagementContract }) => {
                     return eventManagementContract.events(index + 1);
                 })
             );
-            // console.log('event list: ', totalEvents, events)
             if(totalEvents) setEventList(events);
         } catch(error) {
             console.log('error while fetching event list: ', error.message)
+        } finally {
+          setLoading(false);
         }
         
     }
@@ -34,15 +35,24 @@ export const RenderCampaignList = ({ eventManagementContract }) => {
         return {
           header: event.eventName,
           description: (
-            <Link href={`/events/${index + 1}`}>
-              <p className="text-sky-500">View Event Details</p>
-            </Link>
+            <div>
+              <p>{new Date(event.eventDate * 1000).toLocaleDateString()}</p>
+              <Link href={`/events/${index + 1}`}>
+                <p className="text-sky-500">View Event Details</p>
+              </Link>
+            </div>
           ),
           fluid: true
         };
       });
   
-    return <Card.Group items={items} />;
+    return (
+      <div>
+        {isLoading ? (<div class="ui active centered inline loader"></div>)
+          : !isLoading && eventList ? (<Card.Group items={items} />) 
+            : (<p>No Data</p>)}
+      </div>
+    );
   }
 
   export default RenderCampaignList;

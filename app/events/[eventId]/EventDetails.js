@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { Card } from "semantic-ui-react";
 
 export const RenderEventDetails = ({ eventDetails }) => {
@@ -13,35 +12,10 @@ export const RenderEventDetails = ({ eventDetails }) => {
     ] = eventDetails;
 
     const getDate = (timestamp) => {
-
         // Create a new Date object using the timestamp
-        const date = new Date(timestamp).toLocaleDateString();
+        const date = new Date(timestamp * 1000).toLocaleDateString();
         console.error('Date: ', date);
-        return null;
-
-        // Check if the date is valid
-        if (isNaN(date.getTime())) {
-            console.error('Invalid Date');
-        } else {
-            // Format the date to a human-readable string
-            const formattedDate = date.toLocaleString(); // Default locale string
-            console.log('Formatted Date:', formattedDate);
-
-            // Custom formatted date
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1; // Months are zero-based
-            const day = date.getDate();
-            const hours = date.getHours();
-            const minutes = date.getMinutes();
-            const seconds = date.getSeconds();
-
-            const customFormattedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-            const customFormattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-            const dateTime = `${customFormattedDate}  ${customFormattedTime}`;
-            console.log(`Custom Formatted Date: `, dateTime);
-            return dateTime;
-        }
+        return date;
     }
     
     const items = [

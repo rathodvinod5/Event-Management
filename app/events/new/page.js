@@ -18,7 +18,7 @@ const NewEvent = () => {
   const [minDate, setMinDate] = useState("");
 
   const { eventManagementContract } = useEventManagementContext();
-  const { router } = useRouter();
+  const router = useRouter();
 
   useEffect(() => {
     const today = new Date();
@@ -45,19 +45,19 @@ const NewEvent = () => {
         setErrorMessage("Please input a valid number of tickets");
     else setErrorMessage("");
 
-    // console.log('units: ', ethers.utils.parseUnits(price, "ether").toString(), 
-    //     ethers.utils.parseEther(price, "wei").toString());
-
     if(name && organiser && eventDate && price > 0 && totalTickets > 0) {
         setLoading(true);
+        const currentTimeStamp = Math.floor(new Date(eventDate).getTime() / 1000);
+        console.log("current timeStamp: ", currentTimeStamp, new Date(currentTimeStamp).toDateString());
+
         try {
-            await eventManagementContract.createEvent(
-                name, 
-                organiser, 
-                new Date(eventDate).getTime(), 
-                parseInt(price), 
-                totalTickets
-            );
+            // await eventManagementContract.createEvent(
+            //     name, 
+            //     organiser, 
+            //     currentTimeStamp, 
+            //     parseInt(price), 
+            //     totalTickets
+            // );
             router.replace('/', { scroll: true });
         }catch(error) {
           console.log("Error: ", error.message);
@@ -71,10 +71,10 @@ const NewEvent = () => {
   return (
     <div>
       <div style={{ height: '50px' }}></div>
-      <Link href={`/`} className='primary-text' primary>
+      <Link href={`/`} className='primary-text'>
         Back
       </Link>
-      <div class="ui divider"></div>
+      <div className="ui divider"></div>
       <PageHeader as="h3">New Event</PageHeader>
       <Form onSubmit={onSubmit} error={!!errorMessage}>
         <FormField>
