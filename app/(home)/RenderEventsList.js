@@ -1,37 +1,39 @@
+"use client";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Card, Loader } from "semantic-ui-react";
 
 export const RenderCampaignList = ({ eventManagementContract }) => {
     const [isLoading, setLoading] = useState(false);
-    const [eventList, setEventList] = useState([]);
+    const [eventList, setEventList] = useState(null);
 
     useEffect(() => {
-      if(!eventList.length) {
+      if(!eventList) {
         setLoading(true);
         getEventsList();
       }
     }, []);
 
     const getEventsList = async () => {
-        try {
-            let totalEvents = await eventManagementContract.eventNumber();
-            totalEvents = totalEvents.toString();
-            const events = await Promise.all(
-                Array(parseInt(totalEvents.toString())).fill().map((element, index) => {
-                    return eventManagementContract.events(index + 1);
-                })
-            );
-            if(totalEvents) setEventList(events);
-        } catch(error) {
-            console.log('error while fetching event list: ', error.message)
-        } finally {
-          setLoading(false);
+      try {
+        let totalEvents = await eventManagementContract.eventNumber();
+        totalEvents = totalEvents.toString();
+        const events = await Promise.all(
+          Array(parseInt(totalEvents.toString())).fill().map((element, index) => {
+            return eventManagementContract.events(index + 1);
+          })
+        );
+        if(Number(totalEvents)) {
+          setEventList(events);
         }
-        
+      } catch(error) {
+          console.log('error while fetching event list: ', error.message)
+      } finally {
+        setLoading(false);
+      } 
     }
 
-    const items = eventList.map((event, index) => {
+    const items = eventList && eventList.map((event, index) => {
         return {
           header: event.eventName,
           description: (

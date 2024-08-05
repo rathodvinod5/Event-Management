@@ -1,8 +1,10 @@
 import { useEventManagementContext } from "@/app/context/EventContractContext";
 import { useState } from "react";
 import { Input, Button, Message, Card, Form } from "semantic-ui-react";
+import { ethers } from "ethers";
 
 const PurchaseTickets = ({ eventId }) => {
+  const [newEventId, setNewEventId] = useState(0);
   const [quantity, setQuantity] = useState(0);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -12,41 +14,42 @@ const PurchaseTickets = ({ eventId }) => {
   const { eventManagementContract } = useEventManagementContext();
 
   const onSubmit = () => {
-    if(!quantity && quantity <= 0) {
+    console.log('in onSubmit');
+    if(quantity <= 0) {
       setErrorMessage("Please input a valid number of tickets to buy!");
       return;
     }
     setLoading(true);
 
-    const quantity = 2;
     const pricePerTicketInEther = "0.05";
-    // buyTickets(eventId, quantity, pricePerTicketInEther);
+    buyTickets(eventId ? eventId : newEventId, quantity, pricePerTicketInEther);
   }
 
   async function buyTickets(eventId, quantity, pricePerTicketInEther) {
     try {
       // Calculate the total price in Wei
       const totalPriceInWei = ethers.utils.parseUnits(pricePerTicketInEther.toString(), "ether").mul(quantity);
+      console.log('value: ', totalPriceInWei.toString());
 
-      // Call the buyTickets function with msg.value
-      const tx = await eventManagementContract.buyTickets(eventId, quantity, { value: totalPriceInWei });
-      console.log("Transaction sent:", tx.hash);
+      // // Call the buyTickets function with msg.value
+      // const tx = await eventManagementContract.buyTickets(eventId, quantity, { value: totalPriceInWei });
+      // console.log("Transaction sent:", tx.hash);
 
-      // Wait for the transaction to be mined
-      const receipt = await tx.wait();
-      console.log("Transaction mined:", receipt);
+      // // Wait for the transaction to be mined
+      // const receipt = await tx.wait();
+      // console.log("Transaction mined:", receipt);
 
-      // Parse the events from the receipt
-      receipt.events.forEach((event) => {
-        if (event.event === "TicketPurchased") {
-          console.log("Ticket Purchased:");
-          console.log("Event Name:", event.args.eventName);
-          console.log("Event Date:", new Date(event.args.eventDate.toNumber() * 1000));
-          console.log("Price:", ethers.utils.formatUnits(event.args.price, "ether"));
-          console.log("Quantity:", event.args.quantity.toString());
-          console.log("Buyer:", event.args.buyer);
-        }
-      });
+      // // Parse the events from the receipt
+      // receipt.events.forEach((event) => {
+      //   if (event.event === "TicketPurchased") {
+      //     console.log("Ticket Purchased:");
+      //     console.log("Event Name:", event.args.eventName);
+      //     console.log("Event Date:", new Date(event.args.eventDate.toNumber() * 1000));
+      //     console.log("Price:", ethers.utils.formatUnits(event.args.price, "ether"));
+      //     console.log("Quantity:", event.args.quantity.toString());
+      //     console.log("Buyer:", event.args.buyer);
+      //   }
+      // });
     } catch (error) {
       console.error("Error buying tickets:", error);
     } finally {
@@ -57,6 +60,19 @@ const PurchaseTickets = ({ eventId }) => {
   return (
       <div style={{ width: '100%', padding: '10px' }}>
         <Form onSubmit={onSubmit} error={!!errorMessage}>
+          {!eventId ? (
+            <div>
+              <label style={{ marginTop: '20px' }}>EventId</label>
+              <Input 
+                value={newEventId} 
+                type='number'
+                required
+                fluid
+                onChange={event => setNewEventId(event.target.value)}
+              />
+            </div>
+          ) : null}
+
           <label style={{ marginTop: '20px' }}>Quantity</label>
           <Input 
             value={quantity} 

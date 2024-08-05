@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { Header as PageHeader, Loader, Grid, Container } from "semantic-ui-react";
 import { useEventManagementContext } from "../../context/EventContractContext";
 import { RenderEventDetails } from "./EventDetails";
-import PurchaseTickets from "./PurchaseTicket";
-import TabsContainer from "./TabsContainer";
+import TabsContainer from "../../components/tabs-container/TabsContainer";
 
 const EventDetails = ({ params }) => {
   const [loading, setLoading] = useState(false);
@@ -51,7 +50,6 @@ const EventDetails = ({ params }) => {
               </Grid.Column>
               <Grid.Column width={6}>
                 <Container>
-                  {/* <PurchaseTickets eventId={eventId} /> */}
                   <TabsContainer eventId={eventId} />
                 </Container>
               </Grid.Column>

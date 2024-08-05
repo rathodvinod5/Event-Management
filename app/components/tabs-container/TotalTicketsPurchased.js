@@ -1,12 +1,13 @@
 import { useEventManagementContext } from "@/app/context/EventContractContext";
 import { useState } from "react";
-import { Input, Button, Message, Card, Form } from "semantic-ui-react";
+import { Input, Button, Message, MessageHeader, Form } from "semantic-ui-react";
 
 const TotalTicketsPurchased = ({ eventId }) => {
+  const [newEventId, setNewEventId] = useState(0);
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [showSuccessMessage, toggleSuccessMessage] = useState(false);
+  const [totalTickets, setTotalTickets] = useState("");
 
   const { eventManagementContract } = useEventManagementContext();
 
@@ -18,8 +19,9 @@ const TotalTicketsPurchased = ({ eventId }) => {
 
     setLoading(true);
     try {
-        const tickets = await eventManagementContract.tickets(address, eventId);
+        const tickets = await eventManagementContract.tickets(address, eventId ? eventId : newEventId);
         console.log('Tickets: ', tickets);
+        setTotalTickets(tickets.toString());
     } catch(error) {
         console.log('ERROR: ', error.Message);
     } finally {
@@ -30,6 +32,19 @@ const TotalTicketsPurchased = ({ eventId }) => {
   return (
       <div style={{ width: '100%', padding: '10px' }}>
         <Form onSubmit={onSubmit} error={!!errorMessage}>
+          {!eventId ? (
+            <div>
+              <label style={{ marginTop: '20px' }}>EventId</label>
+              <Input 
+                value={newEventId} 
+                type='number'
+                required
+                fluid
+                onChange={event => setNewEventId(event.target.value)}
+              />
+            </div>
+          ) : null}
+
           <label style={{ marginTop: '20px' }}>Address</label>
           <Input 
             value={address} 
@@ -40,9 +55,9 @@ const TotalTicketsPurchased = ({ eventId }) => {
             onChange={event => setAddress(event.target.value)}
           />
 
-          {showSuccessMessage ? (
+          {totalTickets ? (
             <Message info>
-              <MessageHeader>You purchased {quantity} tickets</MessageHeader>
+              <MessageHeader>You have {totalTickets} tickets for this event.</MessageHeader>
             </Message>
           ) : null}
           <Button 
